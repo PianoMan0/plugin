@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PLUGIN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A Hack Club YSWS about making Hackatime plugins" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <div class="profile">
+      <img id="my-avatar" src="https://api.dicebear.com/7.x/identicon/svg?seed=pianoman0" alt="user" />
+      <span>you!</span>
+    </div>
+    <label class="avatar-picker-label" for="avatar-picker">Change profile picture
+      <input type="file" accept="image/*" id="avatar-picker" style="display:none" />
+    </label>
+    <nav>
+      <ul>
+        <li class="active">Home</li>
+        <li>Leaderboards</li>
+        <li>Projects</li>
+        <li>Docs</li>
+        <li>Mailroom</li>
+        <li>Settings</li>
+        <li>Logout</li>
+      </ul>
+    </nav>
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle navigation">&#9776;</button>
+  </div>
+  <div class="content" id="maincontent">
+    <div class="user-count">
+      <span class="online-dot"></span>
+      143 people currently hacking
+    </div>
+
+    <section class="row flex gap-xl" style="margin-bottom:32px;">
+      <div class="column flex-vertical">
+        <p class="subtle text-s mb-2">time flies when you git good!</p>
+        <div class="digital-frame">
+          <div class="digital-clock">PLUGIN</div>
+        </div>
+        <h1 class="main-title">Keep Track of <span class="highlight">Your</span> Coding Time</h1>
+        <p class="desc"></p>
+        <div class="infobar">
+          <span class="tiny">This leaderboard is in UTC. It's currently <span id="ct-utc">19:02</span> in UTC (about 5 hours ahead of you)</span>
+        </div>
+        <div class="leaderboard"></div>
+      </div>
+
+    </section>
+
+
+    <section class="row">
+      <div class="contrib">
+        <div class="contrib-grid" id="contrib-grid"></div>
+        <div class="contrib-label">Calculated in (GMT-05:00) America/New_York</div>
+      </div>
+    </section>
+
+    <section class="row">
+      <div class="bottom-meta">
+        Build <a href="#">g7da8245</a> from 4 days ago.
+        503554 heartbeats (2627 imported) in the past 24 hours.
+        (DB: 9 queries, 0 cached) (CACHE: 8 hits, 0 misses) (8.6 req/sec)
+      </div>
+    </section>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
