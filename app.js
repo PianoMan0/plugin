@@ -1,6 +1,3 @@
-
-
-
 // ========== TIME TRACKING LOGIC ==========
 
 // Load or initialize total time in seconds from localStorage
@@ -19,6 +16,80 @@ setInterval(() => {
   updateTimeDisplay();
   updateLeaderboard();
 }, 1000);
+
+// ========== AVATAR UPLOAD & PERSISTENCE ==========
+
+// Key in localStorage where we keep the user's avatar data URL or remote URL
+const AVATAR_KEY = 'myAvatar';
+
+// Try to load saved avatar (data URL or remote URL) from localStorage
+function loadSavedAvatar() {
+  const saved = localStorage.getItem(AVATAR_KEY);
+  if (!saved) return null;
+  return saved;
+}
+
+// Helper that always reads the current saved avatar (in case it changed this session)
+function getSavedAvatar() {
+  try {
+    return localStorage.getItem(AVATAR_KEY) || null;
+  } catch (err) {
+    return null;
+  }
+}
+
+// Set the sidebar avatar image element
+function setSidebarAvatar(src) {
+  const el = document.getElementById('my-avatar');
+  if (!el) return;
+  el.src = src;
+}
+
+// Wire file input for picking avatar files
+function initAvatarPicker() {
+  const picker = document.getElementById('avatar-picker');
+  if (!picker) return;
+
+  picker.addEventListener('change', async (e) => {
+    const file = picker.files && picker.files[0];
+    if (!file) return;
+
+    // Basic validation: image type and size (limit ~2.5MB)
+    if (!file.type.startsWith('image/')) {
+      alert('Please choose an image file.');
+      picker.value = '';
+      return;
+    }
+    const maxSize = 2.5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('Please choose an image smaller than 2.5 MB.');
+      picker.value = '';
+      return;
+    }
+
+    // Read file as data URL and persist
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const dataUrl = ev.target.result;
+      try {
+        localStorage.setItem(AVATAR_KEY, dataUrl);
+        setSidebarAvatar(dataUrl);
+        updateLeaderboard();
+      } catch (err) {
+        console.error('Could not save avatar to localStorage', err);
+        alert('Saving your avatar failed (storage quota?).');
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Initialize avatar on startup
+const SAVED_AVATAR = loadSavedAvatar();
+if (SAVED_AVATAR) {
+  setSidebarAvatar(SAVED_AVATAR);
+}
+initAvatarPicker();
 
 // Format seconds as (e.g.) "2h 3m 45s" or similar
 function fmtTime(sec) {
@@ -41,7 +112,6 @@ function updateTimeDisplay() {
 }
 
 // ========== LEADERBOARD ==========
-// Mock some users with random site times for demonstration
 let LEADERBOARD_DATA = [
   { name: "BetterClient", time: 34010, flames: 3, avatar: "Reza1290", medal: "🥇" },
   { name: "Lucas11", time: 31811, flames: 8, avatar: "neon443", flag: "🇬🇧", medal: "🥈" },
@@ -52,14 +122,14 @@ let LEADERBOARD_DATA = [
 // Insert self into leaderboard, re-sort by time
 function updateLeaderboard() {
   // Fetch your user
+  // Use the saved avatar (data URL or remote URL) if available, otherwise fall back to seed
   let mine = {
     name: "You",
     time: mySeconds,
     flames: Math.floor(mySeconds / 8000), // fun: 1 per 8000s == 2h
-    avatar: "pianoman0",
+    avatar: getSavedAvatar() || "pianoman0",
     medal: "",
   };
-  // Copy board, replace/add You
   let lb = [...LEADERBOARD_DATA];
   const idx = lb.findIndex(x => x.name === 'You');
   if (idx !== -1) lb[idx] = mine;
@@ -90,9 +160,18 @@ function updateLeaderboard() {
     if (u.name === "You") meIn = true;
     let row = document.createElement('div');
     row.className = 'row board-entry';
+    let avatarSrc;
+    if (u.avatar && (u.avatar.startsWith('http') || u.avatar.includes('/') || /\.(png|jpe?g|svg|gif)$/i.test(u.avatar))) {
+      avatarSrc = u.avatar;
+    } else if (u.avatar) {
+      avatarSrc = `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(u.avatar)}`;
+    } else {
+      avatarSrc = 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/9daf6379eac254429942bc5ab300d58305a68065_image__18_.png';
+    }
+
     row.innerHTML = `
       <div class="medal">${u.medal||(u.place>3?u.place:"")}</div>
-      <div class="avatar"><img src="https://hc-cdn.hel1.your-objectstorage.com/s/v3/9daf6379eac254429942bc5ab300d58305a68065_image__18_.png" /></div>
+      <div class="avatar"><img src="${avatarSrc}" alt="${u.name}" /></div>
       <div class="name">${u.name}${u.flag?` <span class="flag">${u.flag}</span>`:""}</div>
       <div class="flames${u.flames>=8?' danger':u.flames>=7?' warn':''}">${u.flames?`🔥 ${u.flames}`:""}</div>
       <div class="time">${fmtTime(u.time)}</div>
@@ -100,14 +179,17 @@ function updateLeaderboard() {
     parent.appendChild(row);
     shown++;
   }
-  // If "You" not in top 7, show as "868" row at end
   if (!meIn) {
     let mine = lb.find(x=>x.name=="You");
     let row = document.createElement('div');
     row.className = 'row board-entry';
+    let mineAvatarSrc = mine.avatar && (mine.avatar.startsWith('http') || mine.avatar.includes('/') || /\.(png|jpe?g|svg|gif)$/i.test(mine.avatar))
+      ? mine.avatar
+      : (mine.avatar ? `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(mine.avatar)}` : 'https://hc-cdn.hel1.your-objectstorage.com/s/v3/9daf6379eac254429942bc5ab300d58305a68065_image__18_.png');
+
     row.innerHTML = `
       <div class="position">${mine.place}</div>
-      <div class="avatar"><img src="https://api.dicebear.com/7.x/identicon/svg?seed=${mine.avatar}" /></div>
+      <div class="avatar"><img src="${mineAvatarSrc}" /></div>
       <div class="name">${mine.name}</div>
       <div class="flames${mine.flames>=8?' danger':mine.flames>=7?' warn':''}">${mine.flames?`🔥 ${mine.flames}`:""}</div>
       <div class="time">${fmtTime(mine.time)}</div>
