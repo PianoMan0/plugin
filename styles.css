@@ -101,10 +101,9 @@ b, .highlight { color: #ff6b6b; font-weight: 700; }
 .flames { width: 120px; text-align:center; font-weight:800; color:#f1b34c; flex: 0 0 120px }
 .time { width: 140px; text-align:right; font-family: 'Orbitron', monospace; font-size:0.98rem; color:#e6eef8; flex: 0 0 140px }
 
-/* Prevent content from creating horizontal scroll on large screens */
 .content { overflow-x: hidden }
 
-/* Expanded Stats Panel (new) */
+/* Expanded Stats Panel */
 .stats-panel { display:flex; gap: 18px; margin: 6px 0 18px; align-items:stretch; max-width: 1200px; width: calc(100% - 40px) }
 .stat { background: rgba(255,255,255,0.02); border-radius: 12px; padding: 12px 14px; flex:1; display:flex; flex-direction:column; justify-content:center; min-height:80px; box-shadow: 0 6px 18px rgba(2,6,23,0.45) }
 .stat .value { font-family: 'Orbitron', monospace; font-size:1.35rem; font-weight:800; color:#fff }

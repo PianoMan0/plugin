@@ -54,7 +54,7 @@ function initAvatarPicker() {
     const file = picker.files && picker.files[0];
     if (!file) return;
 
-    // Basic validation: image type and size (limit ~2.5MB)
+    // Image type and size (limit ~2.5MB)
     if (!file.type.startsWith('image/')) {
       alert('Please choose an image file.');
       picker.value = '';
@@ -121,8 +121,6 @@ let LEADERBOARD_DATA = [
 
 // Insert self into leaderboard, re-sort by time
 function updateLeaderboard() {
-  // Fetch your user
-  // Use the saved avatar (data URL or remote URL) if available, otherwise fall back to seed
   let mine = {
     name: "You",
     time: mySeconds,
