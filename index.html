@@ -13,63 +13,56 @@
 <body>
   <div class="sidebar" id="sidebar">
     <div class="profile">
-      <img id="my-avatar" src="https://api.dicebear.com/7.x/identicon/svg?seed=pianoman0" alt="user" />
+      <img id="my-avatar" src="https://api.dicebear.com/7.x/identicon/svg?seed=pianoman0" alt="Your profile picture" />
       <span>you!</span>
     </div>
     <label class="avatar-picker-label" for="avatar-picker">Change profile picture
-      <input type="file" accept="image/*" id="avatar-picker" style="display:none" />
+      <input type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/avif" id="avatar-picker" />
     </label>
-    <nav>
+    <nav aria-label="Sidebar navigation">
       <ul>
-        <li class="active">Home</li>
-        <li>Leaderboards</li>
-        <li>Projects</li>
-        <li>Docs</li>
-        <li>Mailroom</li>
-        <li>Settings</li>
-        <li>Logout</li>
+        <li class="active"><a href="index.html" aria-current="page">Home</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="docs.html">Docs</a></li>
       </ul>
     </nav>
   </div>
-  <div class="content" id="maincontent">
-    <div class="user-count">
-      <span class="online-dot"></span>
-      143 people currently hacking
-    </div>
-
+  <main class="content" id="maincontent">
     <section class="row flex gap-xl" style="margin-bottom:32px;">
       <div class="column flex-vertical">
         <p class="subtle text-s mb-2">time flies when you git good!</p>
         <div class="digital-frame">
           <div class="digital-clock">PLUGIN</div>
         </div>
-        <center><h1 class="main-title">A Hack Club <span class="highlight">YSWS</span> about making Hackatime plugins</h1></center>
+        <h1 class="main-title">A Hack Club <span class="highlight">YSWS</span> about making Hackatime plugins</h1>
         <p class="desc"></p>
         <div class="infobar">
-          <span class="tiny">This leaderboard is in UTC. It's currently <span id="ct-utc">19:02</span> in UTC (about 5 hours ahead of you)</span>
+          <span class="tiny">Sample leaderboard (times shown in UTC). The current time is <time id="ct-utc"></time> UTC.</span>
         </div>
-        <div class="leaderboard"></div>
+        <div class="leaderboard" role="list" aria-label="Time leaderboard"></div>
       </div>
 
     </section>
 
 
-    <section class="row">
-      <div class="contrib">
-        <div class="contrib-grid" id="contrib-grid"></div>
-        <div class="contrib-label">Calculated in (GMT-05:00) America/New_York</div>
+    <section class="row flex gap-xl" style="margin-bottom:32px;"><center>
+      <div class="infobar">
+        <h3>Hackatime is Hack Club's time-tracking tool. We use it to track the time you spend on your amazing projects.</h3>
+        <h3>There are two problems to solve, and we need <i>your</i> help.</h3>
+        <h3>1. There are many tools hackers use that we can't track yet. We need plugins that track time spent on tools with hacker value.</h3>
+        <h3>2. The Hackatime API is so cool! It would be great to have more programs that use it.</h3>
+        <h3>So we challenge you to make one of these: a plugin or a tool using the Hackatime API.</h3>
+        <h3>As thanks, you can choose an item from our shop!</h3>
+        <h3><i>P.S. If your plugin gets adopted, you get a special bonus!</i></h3>
       </div>
-    </section>
+    </section></center>
 
     <section class="row">
       <div class="bottom-meta">
-        Build <a href="#">g7da8245</a> from 4 days ago.
-        503554 heartbeats (2627 imported) in the past 24 hours.
-        (DB: 9 queries, 0 cached) (CACHE: 8 hits, 0 misses) (8.6 req/sec) 
+        A Hack Club YSWS about building Hackatime plugins.
       </div>
     </section>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </main>
   <script src="app.js"></script>
 </body>
 </html>

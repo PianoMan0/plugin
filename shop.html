@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Choose a reward for your Hackatime plugin project." />
+    <title>PLUGIN Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+    <link href="styles.css" rel="stylesheet" />
+    <link href="shop.css" rel="stylesheet" />
+  </head>
+  <body>
+    <aside class="sidebar" id="sidebar">
+      <div class="profile">
+        <img id="my-avatar" src="https://api.dicebear.com/7.x/identicon/svg?seed=pianoman0" alt="Your profile" />
+        <span>you!</span>
+      </div>
+      <nav aria-label="Sidebar navigation">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li class="active"><a href="shop.html" aria-current="page">Shop</a></li>
+          <li><a href="docs.html">Docs</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="content shop-content" id="maincontent">
+      <div class="shop-page">
+        <header class="shop-heading">
+          <p class="shop-kicker">PLUGIN rewards</p>
+          <h1>Shop</h1>
+          <p>Choose one reward for your project. Orders go to the PLUGIN team for review.</p>
+        </header>
+
+        <section class="catalog" id="catalog" aria-labelledby="catalog-title">
+          <div class="catalog-header">
+            <div>
+              <h2 id="catalog-title">Available rewards</h2>
+              <p>Pick the item you want to request.</p>
+            </div>
+            <div class="filter-row" role="group" aria-label="Filter rewards">
+              <button class="filter-pill active" type="button" data-category="All" aria-pressed="true">All</button>
+              <button class="filter-pill" type="button" data-category="Tools" aria-pressed="false">Tools</button>
+              <button class="filter-pill" type="button" data-category="Swag" aria-pressed="false">Swag</button>
+              <button class="filter-pill" type="button" data-category="Perks" aria-pressed="false">Perks</button>
+            </div>
+          </div>
+          <div class="product-grid" id="productGrid"></div>
+          <p class="availability-note">Rewards are subject to project approval and availability.</p>
+        </section>
+
+        <section class="order-panel" aria-labelledby="order-title">
+          <div class="order-copy">
+            <h2 id="order-title">Your order</h2>
+            <div id="orderSelection" class="order-selection">Choose a reward to get started.</div>
+            <p id="requestStatus" class="request-status" role="status" aria-live="polite"></p>
+          </div>
+          <button class="place-order" id="checkoutBtn" type="button" disabled>Place order</button>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      try {
+        const savedAvatar = localStorage.getItem('myAvatar');
+        if (savedAvatar) {
+          document.getElementById('my-avatar').src = savedAvatar;
+        }
+      } catch (error) {
+        console.error('Could not load the saved profile picture.', error);
+      }
+
+      const products = [
+        {
+          id: 'usb-c-hub',
+          name: 'USB-C Dock + Hub',
+          category: 'Tools',
+          description: 'A USB-C hub for connecting a laptop to a monitor and other accessories.'
+        },
+        {
+          id: 'mechanical-keyboard',
+          name: 'Mechanical Keyboard',
+          category: 'Swag',
+          description: 'A mechanical keyboard for your desk setup.'
+        },
+        {
+          id: 'monitor-arm',
+          name: 'Monitor Arm',
+          category: 'Perks',
+          description: 'An adjustable arm to lift a monitor and free up desk space.'
+        },
+        {
+          id: 'noise-canceling',
+          name: 'Noise-Canceling Headphones',
+          category: 'Perks',
+          description: 'Noise-canceling headphones for work or travel.'
+        },
+        {
+          id: 'developer-bundle',
+          name: 'Developer Starter Bundle',
+          category: 'Tools',
+          description: 'A bundle of useful tools and accessories for your workspace.'
+        },
+        {
+          id: 'plugin-mentor',
+          name: '1:1 Plugin Review Session',
+          category: 'Perks',
+          description: 'A one-on-one review of your plugin with feedback from another builder.'
+        }
+      ];
+
+      let selectedProductId = null;
+      let activeCategory = 'All';
+      let isSubmitting = false;
+      let orderPlaced = false;
+
+      function renderProducts() {
+        const grid = document.getElementById('productGrid');
+        const visibleProducts = activeCategory === 'All'
+          ? products
+          : products.filter(product => product.category === activeCategory);
+
+        grid.innerHTML = visibleProducts.map(product => {
+          const isSelected = selectedProductId === product.id;
+          return `
+            <article class="product-card${isSelected ? ' selected' : ''}">
+              <p class="product-category">${product.category}</p>
+              <h3>${product.name}</h3>
+              <p class="product-description">${product.description}</p>
+              <button class="choose-reward${isSelected ? ' selected' : ''}"
+                data-select="${product.id}" type="button" aria-pressed="${isSelected}">
+                ${isSelected ? 'Selected' : 'Choose'}
+              </button>
+            </article>
+          `;
+        }).join('');
+
+        grid.querySelectorAll('[data-select]').forEach(button => {
+          button.addEventListener('click', () => selectReward(button.dataset.select));
+        });
+      }
+
+      document.querySelectorAll('[data-category]').forEach(button => {
+        button.addEventListener('click', () => {
+          activeCategory = button.dataset.category;
+          document.querySelectorAll('[data-category]').forEach(filter => {
+            const isActive = filter === button;
+            filter.classList.toggle('active', isActive);
+            filter.setAttribute('aria-pressed', String(isActive));
+          });
+          renderProducts();
+        });
+      });
+
+      function selectReward(productId) {
+        if (isSubmitting) return;
+        selectedProductId = selectedProductId === productId ? null : productId;
+        orderPlaced = false;
+        document.getElementById('requestStatus').textContent = '';
+        renderProducts();
+        renderOrder();
+      }
+
+      function renderOrder() {
+        const selectedProduct = products.find(product => product.id === selectedProductId);
+        const button = document.getElementById('checkoutBtn');
+        const selection = document.getElementById('orderSelection');
+
+        button.disabled = !selectedProduct || isSubmitting || orderPlaced;
+        button.textContent = orderPlaced ? 'Order placed' : isSubmitting ? 'Sending...' : 'Place order';
+        selection.textContent = selectedProduct
+          ? `${selectedProduct.name} · ${selectedProduct.category}`
+          : 'Choose a reward to get started.';
+      }
+
+      async function placeOrder() {
+        const selectedProduct = products.find(product => product.id === selectedProductId);
+        if (!selectedProduct || isSubmitting || orderPlaced) return;
+
+        isSubmitting = true;
+        document.getElementById('requestStatus').textContent = 'Sending your order...';
+        renderOrder();
+
+        try {
+          const response = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: selectedProduct.id })
+          });
+          let result;
+          try {
+            result = await response.json();
+          } catch {
+            throw new Error(response.ok
+              ? 'The order service returned an unreadable response.'
+              : 'The order service is unavailable. For local testing, start the site with `python serve.py`.');
+          }
+          if (!response.ok) {
+            const message = result && typeof result.error === 'string'
+              ? result.error
+              : 'Your order could not be sent.';
+            throw new Error(message);
+          }
+          if (!result || typeof result.orderId !== 'string' || !result.orderId) {
+            throw new Error('The order service did not confirm that your order was saved.');
+          }
+
+          orderPlaced = true;
+          document.getElementById('requestStatus').textContent = `Order placed! The PLUGIN team will follow up. Reference: ${result.orderId}`;
+        } catch (error) {
+          document.getElementById('requestStatus').textContent = error instanceof TypeError
+            ? 'Can’t reach the order service. For local testing, start the site with `python serve.py`.'
+            : error.message;
+        } finally {
+          isSubmitting = false;
+          renderOrder();
+        }
+      }
+
+      document.getElementById('checkoutBtn').addEventListener('click', placeOrder);
+      renderProducts();
+      renderOrder();
+    </script>
+  </body>
+</html>
